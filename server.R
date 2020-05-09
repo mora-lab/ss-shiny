@@ -240,7 +240,7 @@ shinyServer(function(input, output, session){
       } else if (input$exp == "td" && input$targetpath == "td1") {
         pval.res()[1:10,1:3]
       } else if (input$exp == "browse" && input$targetpath == "browse1" ){
-        resOutput()$combined.pvalue.results
+        resOutput()$combined.pvalue.results[1:10,1:3]
       }}
     
   })
