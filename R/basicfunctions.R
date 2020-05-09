@@ -60,7 +60,7 @@ comb_pval = function(P.res, method){
   temp = matrix(0,nrow(P.res),1)
   for (i in 1:nrow(P.res)){
     if(method == "sumlog"){ temp[i,1] = sumlog(P.res[i,])$p}
-    if(method == "sumz"){ temp[i,1] = sumz(P.res[i,])$p}
+    if(method == "sumz"){ temp[i,1] = sumz(as.numeric(P.res[i,]))$p}
     if(method == "meanp"){ temp[i,1] = meanp(P.res[i,])$p}
   }
   temp = as.data.frame(temp)
@@ -161,6 +161,7 @@ SSP_calculation = function(Pval.res, target.pathway){
     
     true_positives_data  = Pval.res[which(cond_below_0.05[[i]]),]
     if(class(true_positives_data) == "matrix"){ true_positives = as.numeric(length(true_positives_data[,i])) }
+    if(class(true_positives_data) == "numeric"){ true_positives = 1 }
     false_negatives_data  = Pval.res[which(cond_over_0.05[[i]]),]
     if(class(false_negatives_data) == "matrix"){ false_negatives = as.numeric(length(false_negatives_data[,i])) }
     if(class(false_negatives_data) == "numeric"){ false_negatives = 1 }
