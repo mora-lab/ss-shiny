@@ -67,7 +67,6 @@ shinyServer(function(input, output, session){
       colnames(nsample_pvalue) = paste("combined.pval", names(sample_pvalue), sep="")
       return(nsample_pvalue)
     } else if(input$exp == "td" && input$targetpath == "td1") {
-      showNotification(paste("Please wait a moment to get results!"), duration = 15, type = "message")
       for (i in 1:length(Tarcadata_pvalue)){
         pvalue[[i]] = Tarcadata_pvalue[[i]][,which(colnames(Tarcadata_pvalue[[i]]) %in% input$GSEAMethods)]
         nTarcadata_pvalue[[i]] = comb_pval(pvalue[[i]], method = input$comp)
