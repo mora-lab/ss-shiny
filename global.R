@@ -43,6 +43,6 @@ suppressMessages(library(KEGGandMetacoreDzPathwaysGEO));
 source("R/basicfunctions.R")
 
 ### load data in need
-load("import_data.RData")
+# load("import_data.RData")
 
 
