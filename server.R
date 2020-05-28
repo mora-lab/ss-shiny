@@ -130,7 +130,7 @@ shinyServer(function(input, output, session){
     if (input$exp == "Sample_file") {
       pvalue = c();result = c()
       pvalue = lapply(sample_pvalue, function(x) manage.res(x))
-      result = get_SSP(pvalue, sstargetGS$NSCLC)
+      result = get_SSP(pvalue, TarcaGS$NSCLC)
       rownames(result) = NULL
       return(result)
     } else if (input$exp == "Tarca_datasets") {
