@@ -20,9 +20,9 @@
 ### **4. Why only 5 GSA mehods? What if I want to compare the results of a different method?**
 #### SS-shiny only includes methods for the SS-GSA category which are also reasonably fast. Testing additional methods is not possible through the shiny interface, 
 #### but they are possible to be added using the underlying R infrastructure. To see an example of how can that be done, you can read the following jupyter notebooks:
-#### * [GSVA workflow](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/GSVA_GSE10245.ipynb) 
-#### * [Pathifier workflow](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/pathifier_GSE10245.ipynb)
-#### * [GRAPE workflow](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/GRAPE_GSE10245.ipynb)
+#### * [GSVA Tutorial](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/Tutorial%20of%20GSVA%20using%20data%20GSE10245.ipynb) 
+#### * [Pathifier Tutorial](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/Tutorial%20of%20Pathifier%20using%20data%20GSE10245.ipynb)
+#### * [GRAPE Tutorial](https://github.com/mora-lab/benchmarks/blob/master/single-sample/workflows/Tutorial%20of%20GRAPE%20using%20data%20GSE10245.ipynb)
 	
 ### **5. Why should I choose a method to combine p-values?**
 #### As it was said before, SS-shiny will also generate results from an ensemble of all methods included in the analysis.

@@ -1,17 +1,25 @@
 shinyServer(function(input, output, session){
   options(shiny.maxRequestSize=100*1024^2)
+  
   source("global.R")
   note = NULL
+  observe({
+    updateRadioButtons(session, "targetpath",
+                       #label = paste("radioButtons label", x),enen
+                       choices = input$exp,
+                       selected = input$exp)
+  })
+  
   ####################################################
   ###################   Input data   #################
   ####################################################
   expdata <- reactive({
     data = c()
-    if(input$exp == "sf"){
+    if(input$exp == "Sample_file"){
       data = samplefile
-    } else if(input$exp == "td"){
+    } else if(input$exp == "Tarca_datasets"){
       data = Tarcadata
-    } else if(input$exp == "browse" & !is.null(input$userdata)){
+    } else if(input$exp == "Browse" && !is.null(input$userdata)){
       data = readRDS(input$userdata$datapath)
     }
     return(data)
@@ -19,103 +27,35 @@ shinyServer(function(input, output, session){
   
   targetgs <- reactive({
     tardata = c()
-    if(input$targetpath == "sf1"){
-      tardata = TarcaGS[[14]]
-    }
-    if(input$targetpath == "td1"){
+    if(input$targetpath == "Sample_file"){
+      tardata = TarcaGS[[8]]
+    } else if(input$targetpath == "Tarca_datasets"){
       tardata = TarcaGS
-    }
-    if(input$targetpath == "browse1" & !is.null(input$userdata1)){
+    } else if(input$targetpath == "Browse" && !is.null(input$userdata1)){
       tardata = read_data(input$userdata1$datapath)
     }
     return(tardata)
   })
   
-  SSP.result = reactive({
-    if (input$exp == "sf" && input$targetpath == "sf1") {
-      data = sample.result
-      if(length(input$GSEAMethods) == 5){
-        result = data
-      } else if(length(input$GSEAMethods) == 4){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } else if(length(input$GSEAMethods) == 3){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } 
-      return(result)
-    } else if (input$exp == "td" && input$targetpath == "td1") {
-      data = Tarca.result
-      if(length(input$GSEAMethods) == 5){
-        result = data
-      } else if(length(input$GSEAMethods) == 4){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } else if(length(input$GSEAMethods) == 3){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } 
-      return(result)
-    } else if (input$exp == "browse" && input$targetpath == "browse1" ){
-      data = resOutput()$SSP.result
-      if(length(input$GSEAMethods) == 5){
-        result = data
-      } else if(length(input$GSEAMethods) == 4){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } else if(length(input$GSEAMethods) == 3){
-        result = data[which(data$Methods %in% input$GSEAMethods),]
-      } 
-      return(result)
-    }
-  })
-  
-  pval.res <- reactive({
-    nsample_pvalue = list()
-    pvalue = list()
-	nTarcadata_pvalue = list()
-	nbrowse_pvalue = list()
-    if (input$exp == "sf" && input$targetpath == "sf1") {
-      for (i in 1:length(sample_pvalue)){
-        pvalue[[i]] = sample_pvalue[[i]][,which(colnames(sample_pvalue[[i]]) %in% input$GSEAMethods)]
-        nsample_pvalue[[i]] = comb_pval(pvalue[[i]], method = input$comp)
-      }
-      nsample_pvalue = as.data.frame(nsample_pvalue)
-      colnames(nsample_pvalue) = paste("combined.pval", names(sample_pvalue), sep="")
-      return(nsample_pvalue)
-    } else if(input$exp == "td" && input$targetpath == "td1") {
-      for (i in 1:length(Tarcadata_pvalue)){
-        pvalue[[i]] = Tarcadata_pvalue[[i]][,which(colnames(Tarcadata_pvalue[[i]]) %in% input$GSEAMethods)]
-        nTarcadata_pvalue[[i]] = comb_pval(pvalue[[i]], method = input$comp)
-      }
-      nTarcadata_pvalue = as.data.frame(nTarcadata_pvalue)
-      colnames(nTarcadata_pvalue) = paste("combined.pval", names(Tarcadata_pvalue),sep="")
-      return(nTarcadata_pvalue)
-    } else if(input$exp == "browse" && input$targetpath == "browse1" ){
-		browse_pvalue = resOutput()$combined.pvalue
-      for (i in 1:length(browse_pvalue)){
-		pvalue[[i]] = browse_pvalue[[i]][,which(colnames(browse_pvalue[[i]]) %in% input$GSEAMethods)]
-        nbrowse_pvalue[[i]] = comb_pval(pvalue[[i]], method = input$comp)
-      }
-      nbrowse_pvalue = as.data.frame(nbrowse_pvalue)
-      colnames(nbrowse_pvalue) = paste("combined.pval", names(nbrowse_pvalue),sep="")
-      return(nbrowse_pvalue)
-    }    
-  })
   ####################################################
   #############  Output of Data Preview  #############
   ####################################################
   output$expTable <-  DT::renderDataTable(DT::datatable({
-    if(input$exp == "sf"){
+    if(input$exp == "Sample_file"){
       expdata()[[1]]
-    } else if(input$exp == "td"){
-      expdata()[[1]][[1]]
-    } else if(input$exp == "browse" & !is.null(input$userdata)){
+    } else if(input$exp == "Tarca_datasets"){
+      expdata()[[1]]
+    } else if(input$exp == "Browse" & !is.null(input$userdata)){
       expdata()[[1]]
     }
   }))
 
   output$Target <- renderPrint({
-    if(input$targetpath == "sf1"){
+    if(input$targetpath == "Sample_file"){
       targetgs()
-    } else if(input$targetpath == "td1"){
+    } else if(input$targetpath == "Tarca_datasets"){
       targetgs()[[1]]
-    } else if(input$targetpath == "browse1" & !is.null(input$userdata1)){
+    } else if(input$targetpath == "Browse" & !is.null(input$userdata1)){
       targetgs()[[1]]
     }
     
@@ -123,41 +63,53 @@ shinyServer(function(input, output, session){
   ####################################################
   ################  Process Data   ###################
   ####################################################
+  manage.res = function(sample_pvalue){
+    nsample_pvalue = c()
+    pvalue = c()
+    
+    nsample_pvalue = comb_pval(sample_pvalue, method = input$comp)
+    colnames(nsample_pvalue) = input$comp
+    nsample_pvalue = cbind(sample_pvalue, nsample_pvalue)
+    pvalue = nsample_pvalue[,which(colnames(nsample_pvalue) %in% c(input$GSEAMethods, input$comp))]
+  }
   runner <- observeEvent(input$submit,{
     resOutput()
   })
   resOutput = eventReactive(input$submit, {
-    if (input$exp == "browse" && input$targetpath == "browse1" ){
-      note = showNotification(paste("Please wait for some minutes, the process is running!"), 
+    if (input$exp == "Browse"){
+      note = showNotification(paste("Please wait a moment, all datasets are under process!"), 
                               duration = 0, type = "message")
       t.res = list();
       p.res = list();
       score = list();
-      pval.res = list();
       SSP.res = list();
       newSSP.res = list();
-      ROCdata = c();
-      nsamplefile = expdata();
-      nsampleGS = targetgs();
-      for (i in 1:length(nsamplefile)){
-        temp1 = list();
-        t.res[[i]] = run_methods(nsamplefile[[i]],
+      # ROCdata = c();
+      new_data = expdata();
+      new_GS = targetgs();
+      for (i in 1:length(new_data)){
+        note1 = showNotification(paste("Dataset: ", names(new_data)[i], " is under the process!", sep = "" ), 
+                         duration = 0, type = "message")
+        temp1 = c();
+        temp1 = word(names(new_data)[[i]], 2, sep="\\.")
+        targetGS = new_GS[which(names(new_GS) == temp1)][[1]];
+        
+        t.res[[i]] = run_methods(new_data[[i]],
                                  pathway, 
                                  GSEA.Methods = input$GSEAMethods,
-                                 pvalCombMethod =input$comp);
-        p.res[[i]] = t.res[[i]]$summary.pvalue.result;
+                                 pvalCombMethod = input$comp);
+        p.res[[i]] = t.res[[i]]$pvalue.result;
         score[[i]] = t.res[[i]]$score;
-        pval.res[[i]] = t.res[[i]]$pvalue.result;
-        combined.pvalue[[i]] = t.res[[i]]$combined.pvalue
-        names(pval.res)[i] = names(score)[i] = names(p.res)[i] = names(t.res)[i] = names(nsamplefile)[i];
-        # temp1 = word(names(nsamplefile)[[i]], 2, sep="\\.")
-        # t = nsampleGS[[grep(temp2, names(t))]]
-        showNotification(paste("Computing benchmark metrics data!"), duration = 20, type = "message");
-        SSP.res[[i]] = SSP_calculation(p.res[[i]], nsampleGS);  
+        names(score)[i] = names(p.res)[i] = names(t.res)[i] = names(new_data)[i];
+        showNotification(paste("Computing benchmark metrics data!"), duration = 30, type = "message");
+        SSP.res[[i]] = SSP_calculation(p.res[[i]], targetGS);  
         newSSP.res[[i]] = newSSPresult(SSP.res[[i]]);
-        # colnames(newSSP.res[[i]]) = c("sen")
         newSSP.res[[i]]$Datasets = names(p.res)[[i]];
-        }
+        removeNotification(note1)
+        showNotification(paste("Dataset: ", names(new_data)[i], " has been processed successfully!", sep = "" ),
+                         duration = 30, type = "message")
+      }
+      
       newSSP.result = do.call(rbind, newSSP.res);
       newSSP.result$Methods = gsub("PVAL.", "", toupper(newSSP.result$Methods))
       rownames(newSSP.result) = NULL
@@ -169,14 +121,90 @@ shinyServer(function(input, output, session){
       # ROCdata = gather(ROCdata, "Type", "Value", -Methods)
       
       result = list("score" = score,
-                    "pvalue.result" = pval.res,
-                    "combined.pvalue.results" = combined.pvalue,
+                    "pvalue.result" = p.res,
                     "SSP.result" = newSSP.result)#"ROC.result" = ROCdata)
-      
-      removeNotification(note)
-      showNotification(paste("Computation is done successfully, now you could download the results!"), duration = 20, type = "message")
       return(result)
-   }
+    }
+    removeNotification(note)
+    showNotification(paste("Computation is done successfully, now you could download the results!"),
+                     duration = 0, type = "message")
+    
+  })
+ 
+  SSP.result = reactive({
+    if (input$exp == "Sample_file") {
+      pvalue = c();result = c()
+      pvalue = lapply(sample_pvalue, function(x) manage.res(x))
+      result = get_SSP(pvalue, sstargetGS$NSCLC)
+      return(result)
+    } else if (input$exp == "Tarca_datasets") {
+      pvalue = c();
+      SSP.res = list();
+      newSSP.res = list();
+      pvalue = lapply(Tarcadata_pvalue, function(x) manage.res(x))
+      GS = targetgs();
+      for (i in 1:length(pvalue)){
+        temp = c();
+        temp = word(names(pvalue)[[i]], 2, sep="\\.")
+        targetGS = GS[which(names(GS) == temp)][1] ;
+        
+        SSP.res[[i]] = SSP_calculation(pvalue[[i]], targetGS);  
+        newSSP.res[[i]] = newSSPresult(SSP.res[[i]]);
+        newSSP.res[[i]]$Datasets = names(pvalue)[[i]];
+      }
+      newSSP.result = do.call(rbind, newSSP.res);
+      rownames(newSSP.result) = NULL
+      return(newSSP.result)
+    } else if (input$exp == "Browse" && !is.null(input$targetpath)) {
+      data = resOutput()$SSP.result
+      result = data[[i]][,which(colnames(data[[i]]) %in% c(input$GSEAMethods, input$comp))]
+      return(result)
+    }
+  })
+  
+  # pt4 <- reactive({
+  #     if (!input$roc) return(NULL)
+  #   ggplot(resOutput()$ROC.result, aes(d = Type,m = Value, color = Methods))+ 
+  #     geom_roc() + 
+  #     style_roc(theme = theme_grey, xlab = "Specificity",ylab = "Sensitivity") + ggtitle("ROC") +
+  #     ggsci::scale_color_lancet()
+  # })
+  
+  ### Plots of Results
+  output$text1 <-  renderText({
+    t = paste("You have choose the methods: ")
+    print(c(t, input$GSEAMethods,input$comp))
+  })
+  
+  output$text2 <-  renderText({
+    if (input$exp == "Sample_file" && input$targetpath == "Sample_file") {
+      print(paste("The matrix is ", nrow(SSP.result()), "rows X", ncol(SSP.result()), "columns", sep = " "))
+    } else if (input$exp == "Tarca_datasets" && input$targetpath == "Tarca_datasets") {
+      print(paste("The matrix is ", nrow(SSP.result()), "rows X", ncol(SSP.result()), "columns", sep = " "))
+    } else if (input$exp == "Browse" && input$targetpath == "Browse" ){
+      data = resOutput()$SSP.result
+      print(paste("The matrix is ", nrow(data), "rows X", ncol(data), "columns! But here only shown the first 10 rows of all results!", sep = " "))
+    }
+  })
+  
+  output$text3 <-  renderText({
+    if(is.null(input$sn) && is.null(input$sp) && is.null(input$pr)) {
+      print("Please choose at least one benchmark metric!")
+    }
+  })
+  
+  output$SSP = renderPrint({
+    if (length(input$GSEAMethods) == 2){
+      cat("Please choose at least 3 methods!")
+    } else {
+      if (input$exp == "Sample_file" && input$targetpath == "Sample_file") {
+        SSP.result()
+      } else if (input$exp == "Tarca_datasets" && input$targetpath == "Tarca_datasets") {
+        head(SSP.result()$SSP.result,10)
+      } else if (input$exp == "Browse" && input$targetpath == "Browse" ){
+        head(SSP.result(),10)
+      }}
+    
   })
   pt1 <- reactive({
     if (!input$sn) return(NULL)
@@ -185,8 +213,8 @@ shinyServer(function(input, output, session){
       geom_boxplot(outlier.shape = NA,varwidth = TRUE)+
       geom_point(position = position_jitter(0.1)) +
       scale_y_sqrt()+
-      xlab("Sensitivity")+
-      ylab("P-values")
+      xlab("Methods")+
+      ylab("Sensitivity")
     senplot
   })
   pt2 <- reactive({
@@ -196,8 +224,8 @@ shinyServer(function(input, output, session){
       geom_boxplot(outlier.shape = NA,varwidth = TRUE)+
       geom_point(position = position_jitter(0.1)) +
       scale_y_sqrt()+
-      xlab("Specificity")+
-      ylab("P-values")
+      xlab("Methods")+
+      ylab("Specificity")
     speplot
   })
   pt3 <- reactive({
@@ -207,58 +235,10 @@ shinyServer(function(input, output, session){
       geom_boxplot(outlier.shape = NA,varwidth = TRUE)+
       geom_point(position = position_jitter(0.1)) +
       scale_y_sqrt()+
-      xlab("Precision")+
-      ylab("P-values")
+      xlab("Methods")+
+      ylab("Precision")
     preplot
-    })
-  # pt4 <- reactive({
-  #     if (!input$roc) return(NULL)
-  #   ggplot(resOutput()$ROC.result, aes(d = Type,m = Value, color = Methods))+ 
-  #     geom_roc() + 
-  #     style_roc(theme = theme_grey, xlab = "Specificity",ylab = "Sensitivity") + ggtitle("ROC") +
-  #     ggsci::scale_color_lancet()
-  # })
-  ### Plots of Results
-  output$text2 <-  renderText({
-    t = paste("You have choose the methods:")
-    print(c(t, input$GSEAMethods))
   })
-  
-  output$text3 <-  renderText({
-    if(is.null(input$sn) && is.null(input$sp) && is.null(input$pr)) {
-      t = paste("Please choose at least one benchmark metric:")
-      print(t)
-    }
-  })
-  
-  output$comPval = renderPrint({
-    if (length(input$GSEAMethods) == 2){
-      cat("Please choose at least 3 methods!")
-    } else {
-      if (input$exp == "sf" && input$targetpath == "sf1") {
-        head(pval.res(),10)
-      } else if (input$exp == "td" && input$targetpath == "td1") {
-        pval.res()[1:10,1:3]
-      } else if (input$exp == "browse" && input$targetpath == "browse1" ){
-        resOutput()$combined.pvalue.results[1:10,1:3]
-      }}
-    
-  })
-  
-  output$SSP = renderPrint({
-    if (length(input$GSEAMethods) == 2){
-      cat("Please choose at least 3 methods!")
-    } else {
-      if (input$exp == "sf" && input$targetpath == "sf1") {
-        SSP.result()
-      } else if (input$exp == "td" && input$targetpath == "td1") {
-        head(SSP.result(),10)
-      } else if (input$exp == "browse" && input$targetpath == "browse1" ){
-        head(resOutput()$SSP.result,10)
-      }}
-    
-  })
-  
   output$cplot <- renderPlot({
     if (length(input$GSEAMethods) == 2){
       cat("Please choose at least 3 methods!")
@@ -278,30 +258,30 @@ shinyServer(function(input, output, session){
   ### Download
   downdata <- reactive({
     data = c()
-    if (input$exp == "sf" && input$targetpath == "sf1") {
+    if (input$exp == "Sample_file" && input$targetpath == "Sample_file") {
       data = list("expdata" = expdata(),
                   "targetGS" = targetgs(),
                   "ReferenceGS" = pathway,
-                  "combined.pvalue" = pval.res(),
+                  # "pvalue.result" = pval.res(),
                   "SSP.result" = SSP.result(),
                   "sensitivity.plot" = pt1(),
                   "specificity.plot" = pt2(),
                   "precision.plot" = pt3())
-    } else if(input$exp == "td" && input$targetpath == "td1"){
+    } else if(input$exp == "Tarca_datasets" && input$targetpath == "Tarca_datasets"){
       data = list("expdata" = expdata(),
                   "targetGS" = targetgs(),
                   "ReferenceGS" = pathway,
-                  "combined.pvalue" = pval.res(),
+                  # "pvalue.result" = pval.res(),
                   "SSP.result" = SSP.result(),
                   "sensitivity.plot" = pt1(),
                   "specificity.plot" = pt2(),
                   "precision.plot" = pt3())
-    } else if(input$exp == "browse" & !is.null(input$userdata)){
-     data = list("expdata" = expdata(),
+    } else if(input$exp == "Browse" & !is.null(input$userdata)){
+      data = list("expdata" = expdata(),
                   "targetGS" = targetgs(),
                   "ReferenceGS" = pathway,
-                  "combined.pvalue" = resOutput()$combined.pvalue.results,
-                  "SSP.result" = resOutput()$SSP.result(),
+                  # "pvalue.result" = pval.res(),
+                  "SSP.result" = SSP.result(),
                   "sensitivity.plot" = pt1(),
                   "specificity.plot" = pt2(),
                   "precision.plot" = pt3())

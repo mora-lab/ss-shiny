@@ -59,13 +59,13 @@ comb_pval = function(P.res, method){
   com_pvals = c();
   temp = matrix(0,nrow(P.res),1)
   for (i in 1:nrow(P.res)){
-    if(method == "sumlog"){ temp[i,1] = sumlog(P.res[i,])$p}
+    if(method == "sumlog"){ temp[i,1] = sumlog(as.numeric(P.res[i,]))$p}
     if(method == "sumz"){ temp[i,1] = sumz(as.numeric(P.res[i,]))$p}
-    if(method == "meanp"){ temp[i,1] = meanp(P.res[i,])$p}
+    if(method == "meanp"){ temp[i,1] = meanp(as.numeric(P.res[i,]))$p}
   }
   temp = as.data.frame(temp)
   # temp$sumlog = sumz(c(P.res$GSVA, P.res$SSGSEA, P.res$PLAGE,P.res$ZSCORE, P.res$PATHIFIER))$p
-  colnames(temp) = "combined.Pvalue"
+  colnames(temp) = paste("Comb.", method, sep="")
   rownames(temp) = rownames(P.res)
   return(temp)
 }
@@ -80,28 +80,28 @@ run_methods = function(expData, pathway, GSEA.Methods, pvalCombMethod){
   
   data = expData[-1,];
   
-  if ("plage" %in% GSEA.Methods){
+  if ("PLAGE" %in% GSEA.Methods){
     showNotification(paste("Running PLAGE!"), duration = 20, type = "message")
     result$res.plage = GSVA::gsva(as.matrix(data), pathway$KEGGgscollection, method = "plage", 
                             mx.diff = FALSE, parallel.sz=2, abs.ranking = FALSE, verbose=FALSE)
     showNotification(paste("PLAGE is done successfully!"), duration = 20, type = "message")
     pval.res$pval.plage = run_limma(result$res.plage, expData)
   } 
-  if ("zscore" %in% GSEA.Methods){
+  if ("ZSCORE" %in% GSEA.Methods){
     showNotification(paste("Running ZSCORE!"), duration = 20, type = "message")
     result$res.zscore = GSVA::gsva(as.matrix(data), pathway$KEGGgscollection, method = "zscore", 
                              mx.diff = FALSE, parallel.sz=2, abs.ranking = FALSE, verbose=FALSE)
     showNotification(paste("ZSCORE is done successfully!"), duration = 20, type = "message")
     pval.res$pval.zscore = run_limma(result$res.zscore, expData)
   } 
-  if ("ssgsea" %in% GSEA.Methods){
+  if ("SSGSEA" %in% GSEA.Methods){
     showNotification(paste("Running SSGSEA!"), duration = 20, type = "message")
     result$res.ssgsea = GSVA::gsva(as.matrix(data), pathway$KEGGgscollection, method = "ssgsea", 
                              mx.diff = FALSE, parallel.sz=2, abs.ranking = FALSE, verbose=FALSE)
     showNotification(paste("SSGSEA is done successfully!"), duration = 20, type = "message")
     pval.res$pval.ssgsea = run_limma(result$res.ssgsea, expData)
   } 
-  if ("gsva" %in% GSEA.Methods){
+  if ("GSVA" %in% GSEA.Methods){
     showNotification(paste("Running GSVA!"), duration = 20, type = "message")
     result$res.gsva = GSVA::gsva(as.matrix(data), pathway$KEGGgscollection, method = "gsva", 
                            mx.diff = FALSE, parallel.sz=2, abs.ranking = FALSE, verbose=FALSE)
@@ -118,12 +118,18 @@ run_methods = function(expData, pathway, GSEA.Methods, pvalCombMethod){
   new.res.pval = c()
   new.res.pval = as.data.frame(pval.res)
   colnames(new.res.pval) = names(pval.res)
+  showNotification(paste("Computing combined pvalues!"), duration = 20, type = "message")
   combined.pvalue = comb_pval(new.res.pval, pvalCombMethod)
+  colnames(combined.pvalue) = "Comb.PValue"
+  showNotification(paste("Combined pvalues has computed successfully!"), duration = 20, type = "message")
   
+  pvalue.result = c()
+  pvalue.result = cbind(new.res.pval, combined.pvalue)
+
   output$score = result
-  output$pvalue.result = pval.res
-  output$summary.pvalue.result = new.res.pval
-  output$combined.pvalue = combined.pvalue
+  # output$pvalue.result = pval.res
+  # output$summary.pvalue.result = new.res.pval
+  output$pvalue.result = pvalue.result
   return(output)
 }
 
@@ -205,3 +211,21 @@ newSSPresult = function(SSP_cal) {
   
 }
 
+get_SSP = function(Pval.res, target.pathway){
+  
+  SSP.res = list()
+  newSSP.res = list()
+  newSSP.result = c()
+  
+  data = Pval.res
+  for (i in 1:length(data)){
+    SSP.res[[i]] = SSP_calculation(data[[i]], target.pathway);  
+    newSSP.res[[i]] = newSSPresult(SSP.res[[i]]);
+    newSSP.res[[i]]$Datasets = names(data)[[i]];
+  }
+  
+  newSSP.result = do.call(rbind, newSSP.res);
+  newSSP.result$Methods = gsub("PVAL.", "", toupper(newSSP.result$Methods))
+  rownames(newSSP.result) = NULL
+  return(newSSP.result)
+}
