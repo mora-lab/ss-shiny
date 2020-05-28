@@ -53,24 +53,33 @@ run_limma = function(score.result, expData){
   results
   #write.table(results,paste0("limma_DEG.",contrast,".txt"),quote = F,sep = '\t',row.names = T)
 }
-
-comb_pval = function(P.res, method){
+comb_pval = function(P.res){
   
   com_pvals = c();
-  temp = matrix(0,nrow(P.res),1)
+  sumlog_temp = matrix(0,nrow(P.res),1)
+  sumz_temp = matrix(0,nrow(P.res),1)
+  meanp_temp = matrix(0,nrow(P.res),1)
+  ntemp = data.frame()
+  
   for (i in 1:nrow(P.res)){
-    if(method == "sumlog"){ temp[i,1] = sumlog(as.numeric(P.res[i,]))$p}
-    if(method == "sumz"){ temp[i,1] = sumz(as.numeric(P.res[i,]))$p}
-    if(method == "meanp"){ temp[i,1] = meanp(as.numeric(P.res[i,]))$p}
+    sumlog_temp[i,1] = sumlog(as.numeric(P.res[i,]))$p
+    sumz_temp[i,1] = sumz(as.numeric(P.res[i,]))$p
+    meanp_temp[i,1] = meanp(as.numeric(P.res[i,]))$p
   }
-  temp = as.data.frame(temp)
-  # temp$sumlog = sumz(c(P.res$GSVA, P.res$SSGSEA, P.res$PLAGE,P.res$ZSCORE, P.res$PATHIFIER))$p
-  colnames(temp) = paste("Comb.", method, sep="")
-  rownames(temp) = rownames(P.res)
-  return(temp)
+  
+  sumlog_temp = as.data.frame(sumlog_temp)
+  sumz_temp = as.data.frame(sumz_temp)
+  meanp_temp = as.data.frame(meanp_temp)
+  colnames(sumlog_temp) = "sumlog"
+  colnames(sumz_temp) = "sumz"
+  colnames(meanp_temp) = "meanp"
+  
+  ntemp = cbind(P.res, sumlog_temp, sumz_temp, meanp_temp)
+  rownames(ntemp) = rownames(P.res)
+  return(ntemp)
 }
 
-run_methods = function(expData, pathway, GSEA.Methods, pvalCombMethod){
+run_methods = function(expData, pathway, GSEA.Methods){
   
   if (length(GSEA.Methods) == 1){stop("Please choose two GSEA methods!")}
   
@@ -117,19 +126,16 @@ run_methods = function(expData, pathway, GSEA.Methods, pvalCombMethod){
   
   new.res.pval = c()
   new.res.pval = as.data.frame(pval.res)
-  colnames(new.res.pval) = names(pval.res)
+  colnames(new.res.pval) = toupper(names(pval.res))
+  colnames(new.res.pval) = gsub("PVAL.", "", colnames(new.res.pval))
   showNotification(paste("Computing combined pvalues!"), duration = 20, type = "message")
-  combined.pvalue = comb_pval(new.res.pval, pvalCombMethod)
-  colnames(combined.pvalue) = "Comb.PValue"
+  combined.pvalue = comb_pval(new.res.pval)
   showNotification(paste("Combined pvalues has computed successfully!"), duration = 20, type = "message")
   
-  pvalue.result = c()
-  pvalue.result = cbind(new.res.pval, combined.pvalue)
-
   output$score = result
   # output$pvalue.result = pval.res
   # output$summary.pvalue.result = new.res.pval
-  output$pvalue.result = pvalue.result
+  output$pvalue.result = combined.pvalue
   return(output)
 }
 
@@ -204,9 +210,9 @@ newSSPresult = function(SSP_cal) {
   SSP.spe = t(SSP_cal$specificity.result)
   SSP.pre = t(SSP_cal$precision.result)
   SSP$Methods = rownames(SSP.sen)
-  SSP$sensitivity = SSP.sen
-  SSP$specificity = SSP.spe
-  SSP$precision = SSP.pre
+  SSP$Sensitivity = SSP.sen
+  SSP$Specificity = SSP.spe
+  SSP$Precision = SSP.pre
   return(as.data.frame(SSP))
   
 }
@@ -217,15 +223,14 @@ get_SSP = function(Pval.res, target.pathway){
   newSSP.res = list()
   newSSP.result = c()
   
-  data = Pval.res
-  for (i in 1:length(data)){
-    SSP.res[[i]] = SSP_calculation(data[[i]], target.pathway);  
+  for( i in 1:length(Pval.res)){
+    SSP.res[[i]] = SSP_calculation(Pval.res[[i]], target.pathway);  
     newSSP.res[[i]] = newSSPresult(SSP.res[[i]]);
-    newSSP.res[[i]]$Datasets = names(data)[[i]];
-  }
+    newSSP.res[[i]]$Datasets = names(Pval.res)[[i]];
+    }
   
   newSSP.result = do.call(rbind, newSSP.res);
-  newSSP.result$Methods = gsub("PVAL.", "", toupper(newSSP.result$Methods))
+  # newSSP.result$Methods = gsub("PVAL.", "", toupper(newSSP.result$Methods))
   rownames(newSSP.result) = NULL
   return(newSSP.result)
 }
