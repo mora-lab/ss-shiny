@@ -43,6 +43,19 @@ suppressMessages(library(KEGGandMetacoreDzPathwaysGEO));
 source("R/basicfunctions.R")
 
 ### load data in need
-# load("import_data.RData")
+pathway = readRDS("data/pathway.RDS")
 
+
+### sample data
+samplefile = readRDS("data/samplefile.RDS")
+sample_pvalue = readRDS("data/sample_pvalue .RDS")
+
+### Tarca data
+tarca1 = readRDS("data/Tarca1.RDS")
+tarca2 = readRDS("data/Tarca2.RDS")
+tarca3 = readRDS("data/Tarca3.RDS")
+Tarcadata = c(tarca1, tarca2, tarca3)
+
+Tarcadata_pvalue = readRDS("data/Tarcadata_pvalue.RDS")
+TarcaGS = readRDS("data/TarcaGS.RDS")
 
