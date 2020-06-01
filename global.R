@@ -41,28 +41,19 @@ suppressMessages(library(KEGGandMetacoreDzPathwaysGEO));
 
 ### function to be used
 source("R/basicfunctions.R")
+source("R/get_Tarcadata.R")
 
 ### load data in need
-pathway = readRDS("data/pathway.RDS")
-
+pathwaylist = read_data("data/c2.cp.kegg.v7.0.symbols.gmt")
+gscollection = GSEABase::getGmt("data/c2.cp.kegg.v7.0.symbols.gmt")
+pathway = list("msigKEGG" = pathwaylist,
+               "KEGGgscollection" = gscollection)
 
 ### sample data
 samplefile = readRDS("data/samplefile.RDS")
 sample_pvalue = readRDS("data/sample_pvalue .RDS")
 
 ### Tarca data
-tarca1 = readRDS("data/Tarca1.RDS")
-tarca2 = readRDS("data/Tarca2.RDS")
-tarca3 = readRDS("data/Tarca3.RDS")
-tarca4 = readRDS("data/Tarca4.RDS")
-tarca5 = readRDS("data/Tarca5.RDS")
-tarca6 = readRDS("data/Tarca6.RDS")
-tarca7 = readRDS("data/Tarca7.RDS")
-tarca8 = readRDS("data/Tarca8.RDS")
-Tarcadata = c(tarca1, tarca2, tarca3,
-             tarca4, tarca5, tarca6,
-             tarca7, tarca8)
-
 Tarcadata_pvalue = readRDS("data/Tarcadata_pvalue.RDS")
 TarcaGS = readRDS("data/TarcaGS.RDS")
 
