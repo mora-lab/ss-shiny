@@ -44,17 +44,8 @@ source("R/basicfunctions.R")
 # source("R/get Tarcadata.R")
 
 ### load data in need
-pathwaylist = read_data("data/c2.cp.kegg.v7.0.symbols.gmt")
-gscollection = GSEABase::getGmt("data/c2.cp.kegg.v7.0.symbols.gmt")
-pathway = list("msigKEGG" = pathwaylist,
-               "KEGGgscollection" = gscollection)
+download.file("http://www.moralab.science/downloads/import_data.RData", destfile = "data/import_data.RData")
+load("data/import_data.RData")
 
-### sample data
-samplefile = readRDS("data/samplefile.RDS")
-sample_pvalue = readRDS("data/sample_pvalue.RDS")
-
-### Tarca data
-Tarcadata_pvalue = readRDS("data/Tarcadata_pvalue.RDS")
-TarcaGS = readRDS("data/TarcaGS.RDS")
 
 
