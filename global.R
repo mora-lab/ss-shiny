@@ -51,7 +51,7 @@ pathway = list("msigKEGG" = pathwaylist,
 
 ### sample data
 samplefile = readRDS("data/samplefile.RDS")
-sample_pvalue = readRDS("data/sample_pvalue .RDS")
+sample_pvalue = readRDS("data/sample_pvalue.RDS")
 
 ### Tarca data
 Tarcadata_pvalue = readRDS("data/Tarcadata_pvalue.RDS")
