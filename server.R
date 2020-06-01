@@ -9,7 +9,7 @@ shinyServer(function(input, output, session){
                        choices = input$exp,
                        selected = input$exp)
   })
-  
+  source("R/get Tarcadata.R")
   ####################################################
   ###################   Input data   #################
   ####################################################
