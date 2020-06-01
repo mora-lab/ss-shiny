@@ -1,7 +1,5 @@
 shinyServer(function(input, output, session){
   options(shiny.maxRequestSize=100*1024^2)
-  
-  source("global.R")
   note = NULL
   observe({
     updateRadioButtons(session, "targetpath",
