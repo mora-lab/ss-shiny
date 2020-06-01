@@ -9,7 +9,11 @@ shinyServer(function(input, output, session){
                        choices = input$exp,
                        selected = input$exp)
   })
+  note3 = showNotification(paste("Please wait a moment, input datasets in preparation!"), 
+                              duration = 0, type = "message")
   source("R/get Tarcadata.R")
+  
+  removeNotification(note3)
   ####################################################
   ###################   Input data   #################
   ####################################################
