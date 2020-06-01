@@ -41,7 +41,7 @@ suppressMessages(library(KEGGandMetacoreDzPathwaysGEO));
 
 ### function to be used
 source("R/basicfunctions.R")
-source("R/get Tarcadata.R")
+# source("R/get Tarcadata.R")
 
 ### load data in need
 pathwaylist = read_data("data/c2.cp.kegg.v7.0.symbols.gmt")
