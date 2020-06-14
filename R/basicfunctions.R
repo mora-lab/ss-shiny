@@ -183,9 +183,8 @@ SSP_calculation = function(Pval.res, target.pathway){
     less_than_0.05[[i]] = as.data.frame(Pval.res[which(Pval.res[,i] <= 0.05),i]) 
     true_negatives_ids[[i]] = setdiff(rownames(greater_than_0.05[[i]]), names(target.pathway))  ## All ids that are there in the tool result with p > 0.05 and absent in the disease pool.
     
-    false_positives1_ids = intersect(rownames(greater_than_0.05[[i]]), names(target.pathway)) 
     false_positives2_ids = setdiff(rownames(less_than_0.05[[i]]), names(target.pathway)) 
-    false_positives[[i]] = c(false_positives1_ids,false_positives2_ids) 
+    false_positives[[i]] = false_positives2_ids 
     
     sensitivity[[i]] = true_positives/(true_positives + false_negatives) 
     specificity[[i]] = length(true_negatives_ids[[i]])/(length(true_negatives_ids[[i]]) + length(false_positives[[i]])) 
