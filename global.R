@@ -44,7 +44,7 @@ source("R/basicfunctions.R")
 # source("R/get Tarcadata.R")
 
 ### load data in need
-download.file("http://www.moralab.science/downloads/import_data.RData", destfile = "data/import_data.RData")
+download.file("http://www.moralab.science/downloads/Chengshu_data/import_data.RData", destfile = "data/import_data.RData")
 load("data/import_data.RData")
 
 
